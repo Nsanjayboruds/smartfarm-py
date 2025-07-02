@@ -1,10 +1,11 @@
-
 import streamlit as st
 import numpy as np
 import pickle
+import os
 
 # Load model
-with open("fertilizer_model.pkl", "rb") as f:
+model_path = os.path.join(os.path.dirname(__file__), "fertilizer_model.pkl")
+with open(model_path, "rb") as f:
     model = pickle.load(f)
 
 st.title("🌿 Fertilizer Recommendation System")
@@ -16,11 +17,12 @@ K = st.number_input("Potassium (K)", min_value=0, max_value=200, value=43)
 temperature = st.slider("Temperature (°C)", 10, 50, 25)
 humidity = st.slider("Humidity (%)", 0, 100, 70)
 moisture = st.slider("Soil Moisture (%)", 0, 100, 30)
+
 soil = st.selectbox("Soil Type", ["Loamy", "Clay", "Sandy", "Black", "Red", "Alluvial"])
 crop = st.selectbox("Crop Type", ["Rice", "Wheat", "Maize", "Sugarcane", "Cotton", "Millets"])
 
 if st.button("Recommend Fertilizer"):
-    # One-hot encoding manually
+    # One-hot encode soil and crop
     soil_types = ["Loamy", "Clay", "Sandy", "Black", "Red", "Alluvial"]
     crop_types = ["Rice", "Wheat", "Maize", "Sugarcane", "Cotton", "Millets"]
 
@@ -31,3 +33,6 @@ if st.button("Recommend Fertilizer"):
     prediction = model.predict(input_features)[0]
 
     st.success(f"🌱 Recommended Fertilizer: **{prediction}**")
+
+
+
