@@ -28,3 +28,4 @@ with open("fertilizer_model.pkl", "wb") as f:
     pickle.dump({"model": model, "features": X.columns.tolist()}, f)
 
 print("✅ Model trained and saved")
+
