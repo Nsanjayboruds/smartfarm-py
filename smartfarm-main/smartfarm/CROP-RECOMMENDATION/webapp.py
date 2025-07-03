@@ -38,8 +38,8 @@ y = df['label']
 Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # ✅ Load or train model safely
-RF_Model = RandomForestClassifier(n_estimators=20, random_state=5)
-RF_Model.fit(Xtrain, Ytrain)
+model_path = os.path.join(os.path.dirname(__file__), 'RF.pkl')
+
 
 try:
     with open(model_path, 'rb') as f:
