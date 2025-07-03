@@ -1,11 +1,23 @@
-# fertilizer_app.py
-
 import streamlit as st
 import pandas as pd
+import numpy as np
 import pickle
 import os
 
-# Load model and expected features
+st.set_page_config(page_title="Fertilizer Recommender", page_icon="🌿", layout="centered")
+
+# Optional custom CSS to tweak UI
+st.markdown("""
+    <style>
+    .stSlider > div[data-baseweb="slider"] {
+        padding: 15px 0;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("🌿 Fertilizer Recommendation System")
+
+# Load model
 model_path = os.path.join(os.path.dirname(__file__), "fertilizer_model.pkl")
 with open(model_path, "rb") as f:
     model_package = pickle.load(f)
@@ -13,51 +25,36 @@ with open(model_path, "rb") as f:
 model = model_package["model"]
 feature_names = model_package["features"]
 
-st.title("🌿 Fertilizer Recommendation System")
-
 # Input fields
 N = st.number_input("Nitrogen (N)", min_value=0, max_value=200, value=90)
-P = st.number_input("Phosphorus (P)", min_value=0, max_value=200, value=42)
-K = st.number_input("Potassium (K)", min_value=0, max_value=200, value=43)
+P = st.number_input("Phosphorus (P)", min_value=0, max_value=200, value=40)
+K = st.number_input("Potassium (K)", min_value=0, max_value=200, value=41)
+
 temperature = st.slider("Temperature (°C)", 10, 50, 25)
-humidity = st.slider("Humidity (%)", 0, 100, 70)
-moisture = st.slider("Soil Moisture (%)", 0, 100, 30)
+humidity = st.slider("Humidity (%)", 0, 100, 53)
+moisture = st.slider("Soil Moisture (%)", 0, 100, 14)
 
 soil = st.selectbox("Soil Type", ["Loamy", "Clay", "Sandy", "Black", "Red", "Alluvial"])
-crop = st.selectbox("Crop Type", [
-    "Barley", "Cotton", "Ground Nuts", "Maize", "Millets", "Oil seeds", 
-    "Paddy", "Pulses", "Sugarcane", "Tobacco", "Wheat"
-])
+crop = st.selectbox("Crop Type", ["Barley", "Cotton", "Ground Nuts", "Maize", "Millets", "Oil seeds", "Paddy", "Pulses", "Sugarcane", "Wheat"])
 
-if st.button("🌱 Recommend Fertilizer"):
-    # Create input dictionary with all expected features
+# Recommend fertilizer
+if st.button("Recommend Fertilizer"):
+    # Prepare input
     input_dict = dict.fromkeys(feature_names, 0)
+    input_dict.update({
+        "nitrogen": N,
+        "phosphorous": P,
+        "potassium": K,
+        "temparature": temperature,
+        "humidity": humidity,
+        "moisture": moisture,
+        f"soil_type_{soil.lower()}": 1,
+        f"crop_type_{crop.lower().replace(' ', '_')}": 1
+    })
 
-    # Update numerical features
-    input_dict["temperature"] = temperature
-    input_dict["humidity"] = humidity
-    input_dict["moisture"] = moisture
-    input_dict["nitrogen"] = N
-    input_dict["potassium"] = K
-    input_dict["phosphorous"] = P
+    # Create DataFrame
+    input_df = pd.DataFrame([input_dict])
 
-    # Update categorical one-hot fields
-    soil_key = f"soil_type_{soil.strip().lower()}"
-    crop_key = f"crop_type_{crop.strip().lower().replace(' ', '_')}"
-
-    if soil_key in input_dict:
-        input_dict[soil_key] = 1
-    if crop_key in input_dict:
-        input_dict[crop_key] = 1
-
-    # Convert to DataFrame with expected column order
-    input_df = pd.DataFrame([input_dict])[feature_names]
-
-    # Predict fertilizer
+    # Predict
     prediction = model.predict(input_df)[0]
     st.success(f"🌱 Recommended Fertilizer: **{prediction}**")
-
-
-
-
-
