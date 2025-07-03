@@ -38,7 +38,9 @@ y = df['label']
 Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, y, test_size=0.3, random_state=42)
 
 # ✅ Load or train model safely
-model_path = os.path.join(os.path.dirname(__file__), 'RF.pkl')
+RF_Model = RandomForestClassifier(n_estimators=20, random_state=5)
+RF_Model.fit(Xtrain, Ytrain)
+
 try:
     with open(model_path, 'rb') as f:
         RF_Model = pickle.load(f)
