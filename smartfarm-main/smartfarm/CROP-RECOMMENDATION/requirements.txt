@@ -1,5 +1,4 @@
 streamlit==1.46.1
-numpy
 tensorflow
 pillow
 numpy>=1.26.0
