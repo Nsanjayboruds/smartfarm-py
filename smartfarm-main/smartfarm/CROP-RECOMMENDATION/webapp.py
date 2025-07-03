@@ -15,8 +15,12 @@ st.set_page_config(page_title="SmartFarm", page_icon="🌾", layout="centered")
 # ✅ Display Header Image
 img_path = os.path.join(os.path.dirname(__file__), "crop.png")
 if os.path.exists(img_path):
-    img = Image.open(img_path)
-    st.image(img, use_container_width=True)  # updated from deprecated use_column_width
+    try:
+        img = Image.open(img_path)
+        st.write(f"Image type: {type(img)}")  # Debug: show image type
+        st.image(img, use_container_width=True)
+    except Exception as e:
+        st.warning(f"⚠️ Could not load image: {e}")
 else:
     st.warning("⚠️ Image 'crop.png' not found.")
 
@@ -33,9 +37,8 @@ X = df[['N', 'P', 'K', 'temperature', 'humidity', 'ph', 'rainfall']]
 y = df['label']
 Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# ✅ Load or train model safely (auto fallback if pickle fails)
+# ✅ Load or train model safely
 model_path = os.path.join(os.path.dirname(__file__), 'RF.pkl')
-
 try:
     with open(model_path, 'rb') as f:
         RF_Model = pickle.load(f)
@@ -52,15 +55,20 @@ def predict_crop(nitrogen, phosphorus, potassium, temperature, humidity, ph, rai
     prediction = RF_Model.predict(data)
     return prediction[0]
 
-# ✅ Crop Image Display Function
+# ✅ Show Image of Recommended Crop
 def show_crop_image(crop_name):
-    img_file = os.path.join("crop_images", crop_name.lower() + ".jpg")
-    if os.path.exists(img_file):
-        st.image(img_file, caption=f"Recommended Crop: {crop_name}", use_container_width=True)
+    image_name = crop_name.lower() + ".jpg"
+    image_path = os.path.join("crop_images", image_name)
+    if os.path.exists(image_path):
+        try:
+            img = Image.open(image_path)
+            st.image(img, caption=f"Recommended Crop: {crop_name}", use_container_width=True)
+        except Exception as e:
+            st.warning(f"⚠️ Could not load crop image: {e}")
     else:
         st.info(f"ℹ️ No image found for '{crop_name}'.")
 
-# ✅ Streamlit App Main UI
+# ✅ Main UI
 def main():
     st.markdown("<h1 style='text-align: center; color: green;'>🌱 SmartFarm: Smart Crop Recommendations</h1>", unsafe_allow_html=True)
 
@@ -89,3 +97,4 @@ if __name__ == "__main__":
 
 
 
+  
