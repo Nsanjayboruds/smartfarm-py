@@ -25,8 +25,8 @@ missing = [col for col in expected_cols if col not in df.columns]
 if missing:
     st.error(f"Expected columns not found in CSV: {missing}")
     st.stop()
+df_encoded = pd.get_dummies(df, columns=["Soil Type", "Crop Type"])
 
-df_encoded = pd.get_dummies(df, columns=expected_cols)
 
 X = df_encoded.drop("fertilizer", axis=1)
 y = df_encoded["fertilizer"]
